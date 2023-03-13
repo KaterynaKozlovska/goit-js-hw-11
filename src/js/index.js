@@ -54,17 +54,16 @@ async function onSubmitSearchForm(e) {
   if (searchQuery === '') {
     return;
   }
-
-  const response = await fetchImages(searchQuery, pageNumber);
-  currentHits = response.hits.length;
-
-  if (response.totalHits > 40) {
-    loadMoreBtn.style.display = 'block';
-  } else {
-    loadMoreBtn.style.display = 'none';
-  }
-
   try {
+    const response = await fetchImages(searchQuery, pageNumber);
+    currentHits = response.hits.length;
+
+    if (response.totalHits > 40) {
+      loadMoreBtn.style.display = 'block';
+    } else {
+      loadMoreBtn.style.display = 'none';
+    }
+
     if (response.totalHits > 0) {
       Notiflix.Notify.success(`Hooray! We found ${response.totalHits} images.`);
       gallery.innerHTML = '';
@@ -88,13 +87,17 @@ loadMoreBtn.addEventListener('click', onClickLoadMoreBtn);
 
 async function onClickLoadMoreBtn() {
   pageNumber++;
-  const response = await fetchImages(searchQuery, pageNumber);
-  renderImageList(response.hits);
-  gallerySimpleLightbox.refresh();
-  currentHits += response.hits.length;
+  try {
+    const response = await fetchImages(searchQuery, pageNumber);
+    renderImageList(response.hits);
+    gallerySimpleLightbox.refresh();
+    currentHits += response.hits.length;
 
-  if (currentHits === response.totalHits) {
-    loadMoreBtn.style.display = 'none';
-    endText.style.display = 'block';
+    if (currentHits === response.totalHits) {
+      loadMoreBtn.style.display = 'none';
+      endText.style.display = 'block';
+    }
+  } catch (error) {
+    console.log(error);
   }
 }
